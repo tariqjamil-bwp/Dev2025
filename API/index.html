@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Markdown Converter</title>
+</head>
+<body>
+    <h1>PDF to Markdown Converter</h1>
+    <input type="file" id="pdfFile" accept="application/pdf">
+    <button onclick="convertPDF()">Convert to Markdown</button>
+    <pre id="markdownDisplay"></pre>
+
+    <script>
+        async function convertPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a PDF file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/convert-pdf/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    alert("Error converting PDF: " + data.error);
+                } else {
+                    document.getElementById('markdownDisplay').textContent = data.markdown;
+                }
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                alert('Failed to convert PDF. Please check the console for more details.');
+            }
+        }
+    </script>
+</body>
+</html>
